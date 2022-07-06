@@ -1,5 +1,11 @@
 import datetime
 
+import requests
+from bs4 import BeautifulSoup
+
+courses = ["CSE3001", "CSE2006"]  # add list of courses required
+
+
 config = {
     "Cookie": "",  # dev tools > request headers
     "_csrf": "",  # dev tools > payload
@@ -37,3 +43,15 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
     "X-Requested-With": "XMLHttpRequest",
 }
+
+url = "https://vtop.vit.ac.in/vtop/academics/common/getCoursesDetailForRegistration"
+
+for i in courses:
+    print(f"\n{i}:\n")
+    payload["courseCode"] = i
+    r = requests.post(url, data=payload, headers=headers)
+    soup = BeautifulSoup(r.text, "html.parser")
+    s = soup.select("#courseDetailFragement > div > table > tr > td > span")
+
+    for i in range(0, len(s), 4):
+        print(s[i].text, s[i + 1].text, s[i + 2].text, s[i + 3].text, sep=",")
