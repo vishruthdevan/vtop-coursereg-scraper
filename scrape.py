@@ -8,3 +8,10 @@ config = {
         "%a, %d %b %Y %H:%M:%S GMT"
     ),
 }
+
+payload = {
+    "_csrf": config["_csrf"],
+    "courseCode": "CSE2006",
+    "authorizedID": config["authorizedID"],
+    "x": config["x"],
+}
