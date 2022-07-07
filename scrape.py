@@ -3,7 +3,7 @@ import datetime
 import requests
 from bs4 import BeautifulSoup
 
-# courses = ["CSE3001", "CSE2006"]  # add list of courses required 
+# courses = ["CSE3001", "CSE2006"]  # add list of courses required
 courses = []
 
 config = {
@@ -77,7 +77,7 @@ if len(courses) == 0:
 url = "https://vtop.vit.ac.in/vtop/academics/common/getCoursesDetailForRegistration"
 
 for j in range(len(courses)):
-    
+
     # print(f"\n{j}:\n")
     payload["courseCode"] = courses[j]
     r = requests.post(url, data=payload, headers=headers)
@@ -85,10 +85,13 @@ for j in range(len(courses)):
     s = soup.select("#courseDetailFragement > div > table > tr > td > span")
 
     for i in range(0, len(s), 4):
-        #write to csv
+        # write to csv
         with open("courses.csv", "a") as f:
             if subject_name == "":
-                f.write(f"{courses[j]},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n")
+                f.write(
+                    f"{courses[j]},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n"
+                )
             else:
-                f.write(f"{courses[j]},{subject_name[j]},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n")
-        
+                f.write(
+                    f'{courses[j]},"{subject_name[j]}",{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n'
+                )
