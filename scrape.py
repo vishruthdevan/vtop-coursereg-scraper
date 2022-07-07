@@ -3,13 +3,13 @@ import datetime
 import requests
 from bs4 import BeautifulSoup
 
-courses = ["CSE3001", "CSE2006"]  # add list of courses required
-# courses = []
+# courses = ["CSE3001", "CSE2006"]  # add list of courses required 
+courses = []
 
 config = {
-    "Cookie": "",  # dev tools > request headers
-    "_csrf": "",  # dev tools > payload
-    "authorizedID": "",  # registration number
+    "Cookie": "loginUserType=vtopuser; JSESSIONID=411C8D6F7969D6333A259CF437C88150; SERVERID=s1",  # dev tools > request headers
+    "_csrf": "7ca9b002-e770-448c-a295-c0f849f90bfb",  # dev tools > payload
+    "authorizedID": "20BDS0190",  # registration number
     "x": datetime.datetime.now(datetime.timezone.utc).strftime(
         "%a, %d %b %Y %H:%M:%S GMT"
     ),
@@ -61,7 +61,7 @@ if len(courses) == 0:
     url = "https://vtop.vit.ac.in/vtop/academics/common/getCoursesListForCurriculmCategory"
 
     courses = []
-
+    subject_name = []
     for i in x:
         payload["cccategory"] = i
         r = requests.post(url, data=payload, headers=headers)
@@ -69,20 +69,27 @@ if len(courses) == 0:
         ## extract value of options
         options = soup.find_all("option")
         for option in options:
-            courses.append(option.get("value"))
-
+            if option.get("value") != "":
+                courses.append(option.get("value"))
+                subject_name.append(option.text)
 
 
 url = "https://vtop.vit.ac.in/vtop/academics/common/getCoursesDetailForRegistration"
 
-for j in courses:
+for j in range(len(courses)):
+    
     # print(f"\n{j}:\n")
-    payload["courseCode"] = j
+    payload["courseCode"] = courses[j]
     r = requests.post(url, data=payload, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
     s = soup.select("#courseDetailFragement > div > table > tr > td > span")
 
     for i in range(0, len(s), 4):
         #write to csv
-        with open("courses.csv", "a") as f:
-            f.write(f"{j},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n")
+        if subject_name == "":
+            with open("courses.csv", "a") as f:
+                f.write(f"{courses[j]},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n")
+        else:
+            with open("courses.csv", "a") as f:
+                f.write(f"{courses[j]},{subject_name[j]},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n")
+        
