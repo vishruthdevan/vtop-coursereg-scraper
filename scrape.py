@@ -3,8 +3,8 @@ import datetime
 import requests
 from bs4 import BeautifulSoup
 
-courses = ["CSE3001", "CSE2006"]  # add list of courses required
-
+# courses = ["CSE3001", "CSE2006"]  # add list of courses required 
+courses = []
 
 config = {
     "Cookie": "",  # dev tools > request headers
@@ -17,9 +17,10 @@ config = {
 
 payload = {
     "_csrf": config["_csrf"],
-    "courseCode": "CSE2006",
+    "courseCode": "",
     "authorizedID": config["authorizedID"],
     "x": config["x"],
+    "cccategory": "",
 }
 
 headers = {
@@ -44,14 +45,50 @@ headers = {
     "X-Requested-With": "XMLHttpRequest",
 }
 
+if len(courses) == 0:
+    url = "https://vtop.vit.ac.in/vtop/academics/common/StudentRegistrationScheduleAllocation"
+
+    # payload["verifyMenu"] = True
+    r = requests.post(url, data=payload, headers=headers)
+    soup = BeautifulSoup(r.text, "html.parser")
+    # get element with id curriculumCategory
+    curriculumCategory = soup.find("select", id="curriculumCategory")
+    # get all options from curriculumCategory
+    options = curriculumCategory.find_all("option")
+    x = [i.get("value") for i in options][1:]
+    print(x)
+
+    url = "https://vtop.vit.ac.in/vtop/academics/common/getCoursesListForCurriculmCategory"
+
+    courses = []
+    subject_name = []
+    for i in x:
+        payload["cccategory"] = i
+        r = requests.post(url, data=payload, headers=headers)
+        soup = BeautifulSoup(r.text, "html.parser")
+        ## extract value of options
+        options = soup.find_all("option")
+        for option in options:
+            if option.get("value") != "":
+                courses.append(option.get("value"))
+                subject_name.append(option.text)
+
+
 url = "https://vtop.vit.ac.in/vtop/academics/common/getCoursesDetailForRegistration"
 
-for i in courses:
-    print(f"\n{i}:\n")
-    payload["courseCode"] = i
+for j in range(len(courses)):
+    
+    # print(f"\n{j}:\n")
+    payload["courseCode"] = courses[j]
     r = requests.post(url, data=payload, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
     s = soup.select("#courseDetailFragement > div > table > tr > td > span")
 
     for i in range(0, len(s), 4):
-        print(s[i].text, s[i + 1].text, s[i + 2].text, s[i + 3].text, sep=",")
+        #write to csv
+        with open("courses.csv", "a") as f:
+            if subject_name == "":
+                f.write(f"{courses[j]},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n")
+            else:
+                f.write(f"{courses[j]},{subject_name[j]},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n")
+        
