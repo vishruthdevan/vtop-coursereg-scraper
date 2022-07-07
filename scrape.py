@@ -7,9 +7,9 @@ from bs4 import BeautifulSoup
 courses = []
 
 config = {
-    "Cookie": "loginUserType=vtopuser; JSESSIONID=411C8D6F7969D6333A259CF437C88150; SERVERID=s1",  # dev tools > request headers
-    "_csrf": "7ca9b002-e770-448c-a295-c0f849f90bfb",  # dev tools > payload
-    "authorizedID": "20BDS0190",  # registration number
+    "Cookie": "",  # dev tools > request headers
+    "_csrf": "",  # dev tools > payload
+    "authorizedID": "",  # registration number
     "x": datetime.datetime.now(datetime.timezone.utc).strftime(
         "%a, %d %b %Y %H:%M:%S GMT"
     ),
@@ -86,10 +86,9 @@ for j in range(len(courses)):
 
     for i in range(0, len(s), 4):
         #write to csv
-        if subject_name == "":
-            with open("courses.csv", "a") as f:
+        with open("courses.csv", "a") as f:
+            if subject_name == "":
                 f.write(f"{courses[j]},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n")
-        else:
-            with open("courses.csv", "a") as f:
+            else:
                 f.write(f"{courses[j]},{subject_name[j]},{s[i].text},{s[i+1].text},{s[i+2].text},{s[i+3].text}\n")
         
